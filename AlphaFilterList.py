@@ -48,7 +48,7 @@ class AlphaFilterList(param.Parameterized):
             self.param.selector.objects =  self.function(self)
         return   
     
-    def getObjects(self):
+    def get_objects(self):
         return(self.param.selector.objects)
     
     def __new_class(self, cls, **kwargs):
