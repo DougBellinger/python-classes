@@ -8,12 +8,15 @@ import param
 import panel as pn
 import logging
 pn.extension()
+from panel.theme import  Material
 
 logger = logging.getLogger('panel.AlphaFilterList')
 
 class AlphaFilterList(param.Parameterized):
     letters = [chr(i) for i in range(ord('A'),ord('Z')+1)]
-    all = []
+    all = None
+    design = None
+    styles = None
     name = param.String(default="Objects")
     filter = param.ListSelector(default=[],objects=letters)
     selector = param.ListSelector(objects=['1','2'])
@@ -34,11 +37,14 @@ class AlphaFilterList(param.Parameterized):
     def starts_with(self):
         return [w for w in self.param.selector.objects if w[0] in self.filter]
 
-    def __init__(self, func=None, **params):
+    def __init__(self, all=None, func=None, design=Material, **params):
         logger.debug(f"Creating AlphaFilterList {self.name}")
         self.function = func if func else self.starts_with
-        self.all = all if all else []
+        self.all = all if all else list()
         #self.filter=filter if filter else []
+        logger.debug(f"params:{params}")
+        #params.pop("all")
+        #logger.debug(f"params:{params}")
         super(AlphaFilterList, self).__init__(**params)
         self.update_options() 
 
@@ -81,8 +87,11 @@ class AlphaFilterList(param.Parameterized):
                     show_name=False,
                     widgets = {
                         "filter": {"type": pn.widgets.MultiSelect,
-                                    "size":26, "width": 70}, 
+                                    "size":26, "width": 70, 
+                                    "design":self.design,
+                                    "styles":self.styles}, 
                         "selector": {"type": pn.widgets.MultiSelect, "name":self.name, 
-                                     "size":26, "width": self.width}
+                                     "size":26, "width": self.width, 
+                                     "design":self.design, "styles":self.styles}
                     } )
         return(alphaFilterView)
