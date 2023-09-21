@@ -37,13 +37,17 @@ class AlphaFilterList(param.Parameterized):
     def starts_with(self):
         return [w for w in self.param.selector.objects if w[0] in self.filter]
 
-    def __init__(self, all=None, func=None, design=Material, **params):
+    def __init__(self, all=None, styles=None, func=None, design=Material, **params):
         logger.debug(f"Creating AlphaFilterList {self.name}")
         self.function = func if func else self.starts_with
+        self.styles = styles if styles else None
+        self.design = design if design else Material
         self.all = all if all else list()
         #self.filter=filter if filter else []
         logger.debug(f"params:{params}")
-        #params.pop("all")
+        params.pop("all", None)
+        params.pop("styles", None)
+        params.pop("design", None)
         #logger.debug(f"params:{params}")
         super(AlphaFilterList, self).__init__(**params)
         self.update_options() 
@@ -88,10 +92,12 @@ class AlphaFilterList(param.Parameterized):
                     widgets = {
                         "filter": {"type": pn.widgets.MultiSelect,
                                     "size":26, "width": 70, 
-                                    "design":self.design,
-                                    "styles":self.styles}, 
+                                    "design":self.design}, 
                         "selector": {"type": pn.widgets.MultiSelect, "name":self.name, 
                                      "size":26, "width": self.width, 
-                                     "design":self.design, "styles":self.styles}
+                                     "design":self.design}
                     } )
+        if (self.styles):
+            alphaFilterView.widgets["filter"].styles = self.styles
+            alphaFilterView.widgets["selector"].styles = self.styles
         return(alphaFilterView)
