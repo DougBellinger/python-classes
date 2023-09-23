@@ -12,6 +12,22 @@ from panel.theme import  Material
 
 logger = logging.getLogger('panel.AlphaFilterList')
 
+class AlphaFilter():
+    def count_matches(word, letters):
+        return(sum(map(lambda x: 1 if x in word else 0, letters)))
+
+    def match_all(words, letters):
+        return [w for w in words if (AlphaFilter.count_matches(w)==len(letters))]
+
+    def match_any(words, letters):
+        return [w for w in words if (AlphaFilter.count_matches(letters)>0)]
+   
+    def match_none(words, letters):
+        return [w for w in words if (AlphaFilter.count_matches(w, letters)==0)]
+
+    def starts_with(words, letters):
+        return [w for w in words if w[0] in letters]
+
 class AlphaFilterList(param.Parameterized):
     letters = [chr(i) for i in range(ord('A'),ord('Z')+1)]
     all = None
@@ -21,21 +37,6 @@ class AlphaFilterList(param.Parameterized):
     filter = param.ListSelector(default=[],objects=letters)
     selector = param.ListSelector(objects=['1','2'])
     width = param.Integer(default=100, precedence=-1)
-    
-    def count_matches(self, w):
-        return(sum(map(lambda x: 1 if x in w else 0, self.filter)))
-
-    def match_all(self):
-        return [w for w in self.param.selector.objects if (self.count_matches(w)==len(self.filter))]
-
-    def match_any(self):
-        return [w for w in self.param.selector.objects if (self.count_matches(w)>0)]
-   
-    def match_none(self):
-        return [w for w in self.param.selector.objects if (self.count_matches(w)==0)]
-
-    def starts_with(self):
-        return [w for w in self.param.selector.objects if w[0] in self.filter]
 
     def __init__(self, all=None, styles=None, func=None, design=Material, **params):
         logger.debug(f"Creating AlphaFilterList {self.name}")
@@ -58,9 +59,9 @@ class AlphaFilterList(param.Parameterized):
         self.param.selector.objects = self.all
         self.param.selector=[]
 
-    @param.depends('all', watch=True)
+    #@param.depends('all', watch=True)
     def update_options(self):
-        logger.debug(f"{self.name} update filter")
+        logger.debug(f"{self.name} update all")
         self.selector = []
         self.param.selector.objects = self.all
 
@@ -68,9 +69,9 @@ class AlphaFilterList(param.Parameterized):
     def update_filter(self):
         logger.debug(f"{self.name} update filter")
         if (self.selector):
-            self.param.selector.objects = self.selector + self.function(self)
+            self.param.selector.objects = self.selector + self.function(self.param.selector.objects,self.filter)
         else:
-            self.param.selector.objects =  self.function(self)
+            self.param.selector.objects =  self.function(self.param.selector.objects,self.filter)
         return   
     
     def get_objects(self):
