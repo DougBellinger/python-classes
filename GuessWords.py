@@ -1,5 +1,6 @@
 import logging
 import panel as pn
+import re
 
 logger = logging.getLogger("GuessWords")
 logger.setLevel(logging.DEBUG)
@@ -37,6 +38,30 @@ class GuessLetter(pn.widgets.TextInput):
         self.param.watch(self._guess_letter_change, ['value_input'], onlychanged=False)
 
 class WordValue(pn.widgets.StaticText):
+    def _word_match(self, p, w):
+        m = re.match(p, w)
+        return(m is not None)
+
+    def _list_match(self, pattern, word_list):
+        logger.debug(f"list_match:{pattern} on {len(word_list)}")
+        return([x for x in list(map(lambda w: w if self._word_match(pattern, w) else None, word_list)) if x is not None])
+    
+    def match(self, pattern):
+        return(self._list_match(pattern, self.source_words))
+    
+    def match_with_blanks(self):
+        logger.debug(f"match_with_blanks: {self.value}")
+        v = self.value.upper()
+        r=""
+        for i in range(0, len(v)):
+            if v[i]=='_':
+                r = r+"([A-Z])"
+            else:
+                r = r+f"({v[i]})"
+        matches = self._list_match(r, self.source_words) 
+        logger.debug(f"match all:{v} {r} matched {len(matches)} of {len(self.source_words)}")  
+        return(matches)
+    
     def set_style(self):
           color = "green" if self.in_words else "red"
           self.styles ={"color":color, 
@@ -46,7 +71,7 @@ class WordValue(pn.widgets.StaticText):
                         'border-radius':"25%"}
 
     def _word_value_change(self,e):
-        logger.debug(f"word_value_chage {self.value} event: {e} ")
+        logger.debug(f"word_value_change {self.value} event: {e} ")
         if (self.value.find("_")!=-1):
             logger.debug("incomplete word")
             return
@@ -60,25 +85,24 @@ class WordValue(pn.widgets.StaticText):
             logger.debug("Word is not in self.source_words")
             self.set_style()
 
-    #word = param.String('_____', regex='[A-Z_]{5}')
-    def __init__(self, guess, source_words, **params):
+    def __init__(self, guess, source_words, length, **params):
         self.guess = guess
         self.in_words = False
-        self.source_words = source_words
+        self.source_words =  [w for w in source_words if len(w)==length]
         params.pop("guess", None)
         super(WordValue, self).__init__(height=50, width=70, **params)
-        self.value = "_____"
+        self.value = '_'*length
         self.param.watch(self._word_value_change, ['value'], onlychanged=False)
         self.set_style()
 
 class GuessWord(pn.GridBox):
     def _word_letter_change(self, e):
-        logger.debug(f"word {self.guess} letter changed:{int(e.obj.guess)}-{e.obj.letter}: {e.new}")
+        logger.trace(f"word {self.guess} letter changed:{int(e.obj.guess)}-{e.obj.letter}: {e.new}")
         if (len(e.new)>=1):
-            l = e.new[0].upper()
+            letter = e.new[0].upper()
         else:
-            l = '_'
-        self.word.value = self.word.value[:e.obj.letter]+l+self.word.value[e.obj.letter+1:]
+            letter = '_'
+        self.word.value = self.word.value[:e.obj.letter]+letter+self.word.value[e.obj.letter+1:]
         logger.debug(f"guess: {self.word.value}")
       
     def current_guess(self):
@@ -127,7 +151,7 @@ class GuessWord(pn.GridBox):
         return(m if m!="_"*self.length else None)
 
     def __init__(self, guess, source_words, length=5,  **params):
-        self.word = WordValue(guess, source_words)
+        self.word = WordValue(guess, source_words, length)
         super(GuessWord, self).__init__(nrows=1, ncols=length+1, **params)
         self.guess = guess
         self.length = length
