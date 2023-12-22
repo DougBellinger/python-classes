@@ -2,6 +2,7 @@ import logging
 import panel as pn
 
 logger = logging.getLogger("GuessWords")
+logger.setLevel(logging.DEBUG)
 
 class GuessLetter(pn.widgets.TextInput):
     def _guess_letter_change(self, e):
@@ -79,8 +80,7 @@ class GuessWord(pn.GridBox):
             l = '_'
         self.word.value = self.word.value[:e.obj.letter]+l+self.word.value[e.obj.letter+1:]
         logger.debug(f"guess: {self.word.value}")
-        self.objects[5].value = self.word.value
-
+      
     def current_guess(self):
         return(self.objects[-1])
     
