@@ -38,7 +38,7 @@ class GuessLetter(pn.widgets.TextInput):
 
 class WordValue(pn.widgets.StaticText):
     def set_style(self):
-          color = "green" if self.in_fives else "red"
+          color = "green" if self.in_words else "red"
           self.styles ={"color":color, 
                         "padding":"8px",
                         "padding-top":"10px",
@@ -46,24 +46,24 @@ class WordValue(pn.widgets.StaticText):
                         'border-radius':"25%"}
 
     def _word_value_change(self,e):
-        logger.debug(f"word {self.value} event: {e} ")
+        logger.debug(f"word_value_chage {self.value} event: {e} ")
         if (self.value.find("_")!=-1):
             logger.debug("incomplete word")
             return
         #todo... update style if not in self.source_words
         if (self.value in self.source_words):
-            self.in_fives = True
+            self.in_words = True
             logger.debug("Word is in self.source_words")
             self.set_style()
         else:
-            self.in_fives = False
+            self.in_words = False
             logger.debug("Word is not in self.source_words")
             self.set_style()
 
     #word = param.String('_____', regex='[A-Z_]{5}')
     def __init__(self, guess, source_words, **params):
         self.guess = guess
-        self.in_fives = False
+        self.in_words = False
         self.source_words = source_words
         params.pop("guess", None)
         super(WordValue, self).__init__(height=50, width=70, **params)
