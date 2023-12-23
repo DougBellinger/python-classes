@@ -90,7 +90,7 @@ class WordValue(pn.widgets.StaticText):
         self.in_words = False
         self.source_words =  [w for w in source_words if len(w)==length]
         params.pop("guess", None)
-        super(WordValue, self).__init__(height=50, width=70, **params)
+        super(WordValue, self).__init__(height=50, width=8+10*length, **params)
         self.value = '_'*length
         self.param.watch(self._word_value_change, ['value'], onlychanged=False)
         self.set_style()
@@ -152,7 +152,7 @@ class GuessWord(pn.GridBox):
 
     def __init__(self, guess, source_words, length=5,  **params):
         self.word = WordValue(guess, source_words, length)
-        super(GuessWord, self).__init__(nrows=1, ncols=length+1, **params)
+        super(GuessWord, self).__init__(nrows=1, ncols=length+2, **params)
         self.guess = guess
         self.length = length
         # self.source_words = source_words
