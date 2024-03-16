@@ -10,7 +10,7 @@ import logging
 
 logger = logging.getLogger("file_utils")
 
-def open_csv_or_excel(f,s=None,dtype=None):
+def open_csv_or_excel(f,s=None,dtype=None, encoding="utf-8"):
     """ open_csv_or_excel
 
     This function dramatically reduces the load time jupyter notebooks that ingest 
@@ -26,7 +26,7 @@ def open_csv_or_excel(f,s=None,dtype=None):
     f = os.path.splitext(f)[0]
     logging.info(f"reading file {f}")
     if (os.path.isfile(f+".csv")):
-        return(pd.read_csv(f+".csv", dtype=dtype))
+        return(pd.read_csv(f+".csv", dtype=dtype, encoding=encoding))
     else:
         df = pd.read_excel(f+".xlsx", dtype=dtype)#,sheet_name=s)#, dtype=dtype)
         logging.info(f"file:{f} {len(df)}")
