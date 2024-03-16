@@ -8,7 +8,7 @@ import os
 import pandas as pd
 import logging
 
-logger = logging.getLogger("file_utils")
+logger = logging.getLogger(__name__)
 
 def open_csv_or_excel(f,s=None,dtype=None, encoding="utf-8"):
     """ open_csv_or_excel
@@ -24,12 +24,13 @@ def open_csv_or_excel(f,s=None,dtype=None, encoding="utf-8"):
     """
     logger.debug(f"opening {f} (sheet:{s}, dtype:{dtype is not None})")
     f = os.path.splitext(f)[0]
-    logging.info(f"reading file {f}")
     if (os.path.isfile(f+".csv")):
+        logging.info(f"reading file {f}.csv")
         return(pd.read_csv(f+".csv", dtype=dtype, encoding=encoding))
     else:
+        logging.info(f"reading file {f}.xlsx")
         df = pd.read_excel(f+".xlsx", dtype=dtype)#,sheet_name=s)#, dtype=dtype)
         logging.info(f"file:{f} {len(df)}")
-        df.to_csv(f+".csv")
+        df.to_csv(f+".csv", index=False)
         return(df)
         

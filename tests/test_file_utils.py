@@ -1,0 +1,46 @@
+import unittest
+import sys
+sys.path.append('../../')
+from file_utils import open_csv_or_excel
+import os
+import logging
+
+class TestFileUtils(unittest.TestCase):
+    test1 = "./test_files/test1"
+    @classmethod
+    def setUpClass(cls):
+        if os.path.exists(cls.test1+".csv"):
+            os.remove(cls.test1+'.csv')     
+
+    def setUp(self):
+        # Changing log level to DEBUG
+        loglevel = logging.DEBUG
+        logging.basicConfig(level=loglevel)
+        self.logger = logging.getLogger()
+        self.logger.debug("Setting up file_utils tests")
+        
+    def test_1_no_csv(self):
+        self.logger.debug(f"Checking xlsx is present and csv is not ({self.test1})")
+        self.assertTrue(os.path.isfile(self.test1+'.xlsx'), "missing test file test1.xlsx")
+        self.assertFalse(os.path.isfile(self.test1+'.csv'), "csv file test1.csv is already there")
+
+    def test_2_open_xlsx(self):
+        self.logger.debug(f"Opening xlsx ({self.test1})")
+        df = open_csv_or_excel(self.test1)
+        (r,c) = df.shape
+        self.assertEqual(r, 9, 'incorrect row count')
+        self.assertEqual(c, 3)
+
+    def test_3_csv_created(self):
+        csvfile = self.test1+'.csv'
+        self.logger.debug(f"Checking CSV file ({os.path.abspath(csvfile)})")
+        self.assertTrue(os.path.isfile(csvfile),f"no csv file created")
+        df = open_csv_or_excel(self.test1)
+        (r,c) = df.shape
+        self.assertEqual(r, 9, 'incorrect row count')
+        self.assertEqual(c, 3) # no extra column for index
+        os.remove(self.test1+'.csv')
+    
+    
+if __name__ == '__main__':
+    unittest.main()
