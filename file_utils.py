@@ -24,12 +24,12 @@ def open_csv_or_excel(f,s=None,dtype=None):
     """
     logger.debug(f"opening {f} (sheet:{s}, dtype:{dtype is not None})")
     f = os.path.splitext(f)[0]
-    print(f"reading file {f}")
+    logging.info(f"reading file {f}")
     if (os.path.isfile(f+".csv")):
         return(pd.read_csv(f+".csv", dtype=dtype))
     else:
         df = pd.read_excel(f+".xlsx", dtype=dtype)#,sheet_name=s)#, dtype=dtype)
-        print(f"file:{f} {len(df)}")
+        logging.info(f"file:{f} {len(df)}")
         df.to_csv(f+".csv")
         return(df)
         
