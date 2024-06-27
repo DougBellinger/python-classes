@@ -29,7 +29,7 @@ def open_csv_or_excel(f,s=None,dtype=None, encoding="utf-8"):
         return(pd.read_csv(f+".csv", dtype=dtype, encoding=encoding))
     else:
         logging.info(f"reading file {f}.xlsx")
-        df = pd.read_excel(f+".xlsx", dtype=dtype)#,sheet_name=s)#, dtype=dtype)
+        df = pd.read_excel(f+".xlsx", dtype=dtype,sheet_name=s)#, dtype=dtype)
         logging.info(f"file:{f} {len(df)}")
         df.to_csv(f+".csv", index=False)
         return(df)
